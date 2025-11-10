@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Dictionary A–Z</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--text:#111;--accent:#0077ff}
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:var(--bg);margin:0;padding:20px;color:var(--text)}
+.container{max-width:960px;margin:auto;display:grid;grid-template-columns:1fr;gap:20px}
+h1{text-align:center;margin-bottom:16px}
+.search{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.search input{flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;max-width:400px}
+.search button{padding:10px 16px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer}
+.result{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+.letters{margin-top:20px;max-height:500px;overflow-y:auto}
+.letter-section{margin-bottom:20px}
+.letter-section h2{margin:8px 0}
+.word-btn{padding:4px 8px;margin:2px;border:none;background:#e0e0ff;border-radius:4px;cursor:pointer}
+.meanings{margin-top:12px}
+.meaning{margin-bottom:12px}
+.meaning h4{margin:0 0 5px}
+.meaning ul{margin:0;padding-left:18px}
+footer{text-align:center;margin-top:24px;color:#666}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📘 English Dictionary</h1>
+  <form id="searchForm" class="search">
+    <input type="text" id="wordInput" placeholder="Enter a word..." required>
+    <button type="submit">Search</button>
+  </form>
+
+  <div id="result" class="result hidden">
+    <h2 id="wordTitle"></h2>
+    <div id="phonetics" class="phonetics"></div>
+    <div id="meanings" class="meanings"></div>
+  </div>
+
+  <div class="letters" id="lettersContainer"></div>
+  <footer>Built with ❤️ — definitions stay in-app</footer>
+</div>
+
+<script>const wordsByLetter = {
+A: ["Apple","Ant","Actor","Artist","Air","Arrow","Angle","Animal","Ability","Abandon","Absorb","Abstract","Accent","Accept","Accident","Account","Accuse","Achieve","Acid","Acorn","Acquire","Across","Action","Active","Actual","Adapt","Add","Address","Adjust","Admire","Adult","Advance","Advantage","Adventure","Advice","Affair","Affect","Afford","Afraid","After","Again","Age","Agent","Aggressive","Agree","Aid","Aim","Air","Aircraft","Airport","Alarm","Album","Alcohol","Alert","Alive","All","Alley","Allow","Almost","Alone","Along","Already","Also","Alter","Alternative","Although","Always","Amazing","Ambition","Amount","Amuse","Ancient","And","Angel","Anger","Angle","Animal","Announce","Another","Answer","Antique","Anxiety","Any","Anybody","Anyone","Anything","Anywhere","Apart","Apartment","Apologize","Appear","Apple","Apply","Appoint","Approach","Approve","Area","Argue","Arm","Army","Arrange","Arrest","Arrive","Art","Article","Artist","As","Ash","Ask","Aspect","Assess","Assign","Assist"],
+B: ["Ball","Bat","Book","Bridge","Butter","Baby","Back","Bag","Balance","Balloon","Banana","Bank","Bar","Bare","Bark","Base","Basic","Basket","Battle","Beach","Bean","Bear","Beat","Beautiful","Become","Bed","Bee","Before","Begin","Behavior","Behind","Being","Belief","Bell","Below","Benefit","Beside","Best","Better","Between","Beyond","Bible","Big","Bill","Bind","Bird","Birth","Birthday","Biscuit","Bit","Bite","Black","Blade","Blank","Blind","Block","Blood","Blow","Blue","Board","Boat","Body","Boil","Bone","Book","Boot","Border","Bore","Borrow","Boss","Both","Bottle","Bottom","Box","Boy","Brain","Branch","Brand","Brave","Bread","Break","Breakfast","Breath","Breathe","Bridge","Brief","Bright","Bring","Broad","Brother","Brown","Brush","Build","Building","Bullet","Burn","Burst","Business","Busy","Butter","Button","Buy","By","Bye"],
+C: ["Cat","Car","Circle","Cloud","Cup","Cabin","Cable","Cactus","Cake","Calculate","Calendar","Call","Camera","Camp","Can","Cancel","Candy","Cap","Capital","Captain","Car","Card","Care","Career","Carpet","Carry","Cart","Case","Cash","Cast","Castle","Cat","Catch","Category","Cause","Ceiling","Celebrate","Cell","Center","Century","Certain","Chain","Chair","Challenge","Chance","Change","Channel","Chapter","Character","Charge","Cheap","Check","Cheese","Chemical","Chest","Chicken","Chief","Child","Choice","Choose","Church","Circle","Citizen","City","Civil","Claim","Class","Classic","Clean","Clear","Climb","Clock","Close","Cloth","Clothes","Cloud","Club","Coach","Coal","Coast","Coat","Coffee","Coin","Cold","Collect","Color","Column","Combination","Combine","Come","Comfort","Command","Comment","Commercial","Common","Communicate","Community","Company","Compare","Compete","Complete","Complex","Computer","Concern","Condition","Conference","Confirm","Connect","Consider","Consist","Constant","Construct","Contact","Contain","Content","Continue","Contract","Contrast","Control","Convert","Cook","Cool","Copy","Corn","Corner","Correct","Cost","Cotton","Count","Country","Couple","Courage","Course","Court","Cover","Cow","Create","Credit","Crew","Crime","Criminal","Crisis","Critical","Cross","Crowd","Cry","Culture","Cup","Current","Curtain","Curve","Custom","Customer","Cut","Cycle"],
+D: ["Dog","Door","Desk","Dragon","Drum","Daily","Damage","Dance","Danger","Dark","Data","Date","Daughter","Day","Dead","Deal","Dear","Death","Debate","Debt","Decade","Decide","Decision","Declare","Decrease","Deep","Defeat","Defend","Define","Degree","Delay","Deliver","Demand","Demonstrate","Den","Department","Depend","Describe","Design","Desire","Desk","Destroy","Detail","Detect","Develop","Device","Devote","Dialogue","Diamond","Diary","Dictionary","Die","Diet","Differ","Difference","Different","Difficult","Dig","Dine","Dinner","Direct","Direction","Director","Dirty","Disagree","Disappear","Disaster","Discover","Discuss","Disease","Dish","Distance","Distant","Divide","Doctor","Document","Dog","Door","Double","Doubt","Down","Draw","Dream","Dress","Drink","Drive","Drop","Dry","Duck","During","Dust","Duty","Dwell","Dye"]
+// ... extend E–Z similarly
+};
+
+// Elements
+const lettersContainer = document.getElementById('lettersContainer');
+const resultDiv = document.getElementById('result');
+const wordTitle = document.getElementById('wordTitle');
+const phoneticsEl = document.getElementById('phonetics');
+const meaningsEl = document.getElementById('meanings');
+
+// Create A–Z sections
+function createLetterSections(){
+for(const letter in wordsByLetter){
+const section = document.createElement('div'); section.className='letter-section';
+const header = document.createElement('h2'); header.textContent=letter; section.appendChild(header);
+const wordContainer = document.createElement('div');
+wordsByLetter[letter].forEach(word=>{
+const btn=document.createElement('button'); btn.className='word-btn'; btn.textContent=word;
+btn.onclick=()=>fetchDefinition(word);
+wordContainer.appendChild(btn);
+});
+section.appendChild(wordContainer);
+lettersContainer.appendChild(section);
+}
+}
+
+// Fetch definition from API
+async function fetchDefinition(word){
+wordTitle.textContent='Loading...';
+phoneticsEl.textContent='';
+meaningsEl.innerHTML='';
+resultDiv.classList.remove('hidden');
+try{
+const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+if(!res.ok) throw new Error('Word not found');
+const data = await res.json();
+const entry = Array.isArray(data)?data[0]:data;
+displayEntry(entry);
+}catch(err){
+wordTitle.textContent='Error'; phoneticsEl.textContent=err.message;
+}
+}
+
+// Display API result
+function displayEntry(entry){
+wordTitle.textContent=entry.word;
+phoneticsEl.innerHTML=(entry.phonetics||[]).map(p=>p.text).filter(Boolean).join(' • ')||'';
+meaningsEl.innerHTML='';
+(entry.meanings||[]).forEach(m=>{
+const div=document.createElement('div'); div.className='meaning';
+const h4=document.createElement('h4'); h4.textContent=m.partOfSpeech; div.appendChild(h4);
+const ul=document.createElement('ul');
+(m.definitions||[]).forEach(d=>{
+const li=document.createElement('li');
+li.innerHTML=`<strong>${d.definition}</strong>${d.example?`<div><em>${d.example}</em></div>`:''}`;
+ul.appendChild(li);
+});
+div.appendChild(ul);
+meaningsEl.appendChild(div);
+});
+}
+
+// Search input
+const searchForm=document.getElementById('searchForm');
+const wordInput=document.getElementById('wordInput');
+searchForm.addEventListener('submit', e=>{
+e.preventDefault();
+const word=wordInput.value.trim();
+if(word) fetchDefinition(word);
+});
+
+createLetterSections();</script>
+</body>
+</html>
